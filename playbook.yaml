@@ -1,0 +1,54 @@
+---
+- name: decrypt Consul Token with Vault
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  vars_files:
+    - vars.yml
+  tasks:
+    - name: Display the Consul token
+      debug:
+        msg: "[DEBUG] The Consul token is: {{ token }}"
+      tags: always
+
+    - name: Check Consul cluster health
+      uri:
+        url: http://127.0.0.1:8500/v1/operator/autopilot/state
+        method: GET
+        headers:
+          X-Consul-Token: "{{ token }}"
+        return_content: yes
+      register: state
+      failed_when: state.status != 200 or not state.json.Healthy
+      tags: check
+    
+    - name: Display Consul cluster health
+      debug:
+        msg: "[DEBUG] Consul cluster health: {{ state.json }}"
+      tags: check
+
+    - name: Register Vault service in Consul
+      uri:
+        url: http://127.0.0.1:8500/v1/catalog/register
+        method: PUT
+        headers:
+          X-Consul-Token: "{{ token }}"
+        body_format: json
+        body:
+          Node: "localhost"
+          Address: "127.0.0.1"
+          Service:
+            ID: "vault01"
+            Service: "vault"
+            Address: "127.0.0.1"
+            Port: 8200
+          Check:
+            CheckID: vault01-check
+            Name: Vault health check
+            Status: passing
+            Definition:
+              HTTP: http://127.0.0.1:8200/v1/sys/health
+              Interval: 20s
+              Timeout: 10s
+        status_code: 200
+      tags: register
