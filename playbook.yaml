@@ -21,11 +21,6 @@
       register: state
       failed_when: state.status != 200 or not state.json.Healthy
       tags: check
-    
-    - name: Display Consul cluster health
-      debug:
-        msg: "[DEBUG] Consul cluster health: {{ state.json }}"
-      tags: check
 
     - name: Register Vault service in Consul
       uri:
@@ -43,12 +38,11 @@
             Address: "127.0.0.1"
             Port: 8200
           Check:
-            CheckID: vault01-check
             Name: Vault health check
             Status: passing
             Definition:
               HTTP: http://127.0.0.1:8200/v1/sys/health
-              Interval: 20s
+              Interval: 30s
               Timeout: 10s
         status_code: 200
       tags: register
