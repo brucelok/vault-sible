@@ -4,7 +4,7 @@
   connection: local
   gather_facts: no
   vars_files:
-    - vars.yml
+    - vars.yaml
   tasks:
     - name: Display the Consul token
       debug:
