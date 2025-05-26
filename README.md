@@ -33,7 +33,11 @@ Set the environment variable `ANSIBLE_VAULT_PASSWORD`
 ```
 $ export ANSIBLE_VAULT_PASSWORD_FILE=/path/to/the/vault_password.sh
 ```
-encrypt the **vars.yaml**
+If using go script, compile it into a binary
+```
+$ go build vault_password.go
+```
+Let's encrypt the **vars.yaml**
 ```
 $ ansible-vault encrypt vars.yml
 ```
